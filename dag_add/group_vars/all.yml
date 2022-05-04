@@ -46,8 +46,7 @@ vrfs:
           - '2:2 stitching'
         rt_export: 
           - '2:2'
-          - '2:2 stitching'
-
+  
 vlans:
 #vrf green vlans
  101:
@@ -55,36 +54,53 @@ vlans:
   description: 'Access_VLAN_101'
   vni: '10101'
   evi: '101'
+  type: 'vlan-based'
+  encapsulation: 'vxlan'
+  replication_type: 'static'
+  replication_mcast: '225.0.0.101'
+ 
 
  102:
   vlan_type: 'access'
   description: 'Access_VLAN_102'
   vni: '10102'
   evi: '102'
-  
+  type: 'vlan-based'
+  encapsulation: 'vxlan'
+  replication_type: 'ingress'
+ 
  901:
   vlan_type: 'core'
   description: 'Core_VLAN_VRF_green'
   vni: '50901'
-
+  vrf: 'green'
+ 
 #vrf blue vlans
  201:
   vlan_type: 'access'
   description: 'Access_VLAN_101'
   vni: '10201'
   evi: '201'
+  type: 'vlan-based'
+  encapsulation: 'vxlan'
+  replication_type: 'static'
+  replication_mcast: '225.0.0.101'
+
 
  202:
   vlan_type: 'access'
   description: 'Access_VLAN_102'
   vni: '10202'
   evi: '202'
+  type: 'vlan-based'
+  encapsulation: 'vxlan'
+  replication_type: 'ingress'
  
  902:
   vlan_type: 'core'
   description: 'Core_VLAN_VRF_blue'
   vni: '50902'
- 
+  vrf: 'blue'
 
 svis:
 #vrf green svi's
@@ -103,13 +119,14 @@ svis:
   ipv6:
     - '2001:102::1/64'
   mac: 'dead.beef.abcd'
-
+  
+  
  901:
   svi_type: 'core'
   vrf: 'green'
   src_intf: 'Loopback1'
   ipv6_enable: 'yes'
-
+ 
 #vrf blue svi's
  201:
   svi_type: 'access'
@@ -131,46 +148,6 @@ svis:
   src_intf: 'Loopback1'
   ipv6_enable: 'yes'
 
-l2vpn_evi:
-  101:
-    type: 'vlan-based'
-    encapsulation: 'vxlan'
-    replication_type: 'static'
-
-  102:
-    type: 'vlan-based'
-    encapsulation: 'vxlan'
-    replication_type: 'ingress'
-
-  201:
-    type: 'vlan-based'
-    encapsulation: 'vxlan'
-    replication_type: 'static'
-
-  202:
-    type: 'vlan-based'
-    encapsulation: 'vxlan'
-    replication_type: 'ingress'
-
 nve_interfaces:
   1:
     source_interface: 'Loopback1'
-    vni:
-      l2vni:
-        10101:
-          replication_type: 'static'
-          replication_mcast: '225.0.0.101'
-        10102:
-          replication_type: 'ingress-replication'
-        10201:
-          replication_type: 'static'
-          replication_mcast: '225.0.0.101'
-        10202:
-          replication_type: 'ingress-replication'
-
-      l3vni:
-        50901:
-          vrf: 'green'
-        50902:
-          vrf: 'blue'
-

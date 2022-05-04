@@ -14,7 +14,7 @@
           - name: check if full execution is needed
             set_fact: 
               incremental_run: true
-            when: (vrf_cli is defined) or (vlan_cli is defined) or (svi_cli is defined) or (l2vpn_evi_cli is defined) or (ovrl_intf_cli is defined)
+            when: (vrf_cli is defined) or (vlan_cli is defined) or (svi_cli is defined) or (ovrl_intf_cli is defined)
           
           - name: Configuring vrf definition
             when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and vrf_cli is defined) or (incremental_run == false))
@@ -51,7 +51,7 @@
             register: result
 
           - name: VLAN to port assignment
-            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and vlan_cli is defined) or (incremental_run == false)) 
+            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and access_inft_cli is defined) or (incremental_run == false)) 
             cli_config:
               config: "{{ lookup('template', '../templates/access_interfaces.j2') }}"
               diff_match: none 
@@ -72,14 +72,14 @@
             register: result
 
           - name: EVPN EVI creation
-            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and l2vpn_evi_cli is defined) or (incremental_run == false))
+            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and vlan_cli is defined) or (incremental_run == false))
             cli_config:
               config: "{{ lookup('template', '../templates/l2vpn_evpn_evi_create.j2') }}"
               diff_match: none 
             register: result
           
           - name: EVI/VNI/VLAN stiching
-            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and l2vpn_evi_cli is defined and vlan_cli is defined) or (incremental_run == false))
+            when: (inventory_hostname in groups['leaf']) and ((incremental_run == true and vlan_cli is defined) or (incremental_run == false))
             cli_config:
               config: "{{ lookup('template', '../templates/evi_vni_vlan_stiching.j2') }}"
               diff_match: none 

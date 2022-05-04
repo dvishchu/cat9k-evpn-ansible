@@ -3,6 +3,8 @@
 - name: Automated VXLAN deployment with BGP EVPN L2/L3 underlay w/ Spine
   hosts: all
   gather_facts: no
+  vars:
+    save_configuration: false
   tasks:  
   
           - name: Configuring vrf definition
@@ -15,17 +17,20 @@
           - name: Configuring neighbors globally for BGP
             cli_config:
               config: "{{ lookup('template', '../templates/bgp_global.j2') }}"
+              diff_match: none
             register: result
           
           - name: Activating BGP neighbor under L2VPN/EVPN AFI/SAFI
             cli_config:
               config: "{{ lookup('template', '../templates/bgp_l2vpn_evpn_af.j2') }}"
+              diff_match: none
             register: result
 
           - name: Activating BGP for AF(ipv4/ipv6) per vrf
             when: inventory_hostname in groups['leaf']
             cli_config:
               config: "{{ lookup('template', '../templates/bgp_l2vpn_ipv46_per_vrf.j2') }}"
+              diff_match: none
             register: result
           
           - name: Access/Core VLAN creating
@@ -88,4 +93,9 @@
             wait_for:
               delay: 60
               timeout: 0
-              
+          
+          - name: save the configuration in the device
+            when: save_configuration
+            cli_command:
+              command: write memory
+            register: result

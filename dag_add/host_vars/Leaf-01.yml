@@ -75,8 +75,13 @@ access_interfaces:
     GigabitEthernet1/0/7:
       action: init
       vlans:
-        - 101
-        - 102
+        - 101-102
+        #- 102
         - 201
         - 202
+  access:
+    GigabitEthernet1/0/8:
+      action: init
+      vlans:
+        - 101
 

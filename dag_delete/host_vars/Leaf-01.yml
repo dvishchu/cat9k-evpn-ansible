@@ -3,8 +3,15 @@ access_interfaces:
      GigabitEthernet1/0/7:
        action: delete
        vlans:
-         - 101
-         - 102
+         - 101-102
+         #- 102
+         - 201
+         - 202
+  access:
+    GigabitEthernet1/0/8:
+      action: delete
+      vlans:
+        - 101
 
 
 

@@ -19,6 +19,12 @@ In this directory there are playbooks for provisioning DAG (Distributed Anycast 
 **playbook_incremental.yml**
 - for partial adding/deleting DAG related config.
 
+**playbook_yaml_validation.yml**
+- for validating the yaml file without any Errors(debug:verbose(total output))
+
+**playbook_device_reachability.yml**
+- for checking the version(>17.3),license(network-advantage) ,loopback ip's of the devices are pinging from its neighbors or not
+
 # group_vars/all.yml config description #
 
 **OVERLAY CONFIGURATION**
@@ -62,17 +68,25 @@ vlans:
   description: 'Access_VLAN_101' <<< description of the vlan
   vni: '10101' <<< Configuring VNI to which vlan should be stitched to
   evi: '101'<<< Configuring EVI (Ethernet Virtual Instance) to which vlan should be stichted to
+  type: 'vlan-based' <<< type "vlan-based". For now only vlan-based is supprted on cat9k (June 2021)
+  encapsulation: 'vxlan' <<< Encapsulation VXLAN. For now only VXLAN encap is supported in cat9k (June 2021)
+  replication_type: 'static' <<< Configure multicast for the BUM replication
+  replication_mcast: '225.0.0.101' <<< Configure multicast group for BUM replication for corresponding VNI
 
  102:
   vlan_type: 'access'
   description: 'Access_VLAN_102'
   vni: '10102'
   evi: '102'
+  type: 'vlan-based'
+  encapsulation: 'vxlan'
+  replication_type: 'ingress-replication' <<< Configure ingress-replication over unicast
  
  901:
   vlan_type: 'core'
   description: 'Core_VLAN_VRF_green'
   vni: '50901'
+  vrf: 'green' <<< Configure the VRF that L3VNI corresponding to
 ```
 **Configuring SVIs**
 ```
@@ -94,32 +108,11 @@ svis:
   ipv6_enable: 'yes' <<< Enabling IPv6 on SVI
 ```
 
-**Configuring per EVI parameters**
-```
-l2vpn_evi:
-  101: <<< EVI number
-    type: 'vlan-based' <<< type "vlan-based". For now only vlan-based is supprted on cat9k (June 2021)
-    encapsulation: 'vxlan' <<< Encapsulation VXLAN. For now only VXLAN encap is supported in cat9k (June 2021)
-
-  102:
-    type: 'vlan-based'
-    encapsulation: 'vxlan'
-```
 **Configuring NVI interface** 
 ```
 nve_interfaces:
   1: <<< NVE interface number
     source_interface: 'Loopback1' <<< Configuring source interface for the NVE interface
-    vni:
-      l2vni: <<< L2VNI configuration part
-        10101: <<< L2VNI number
-          replication_type: 'static' <<< Configure multicast for the BUM replication
-          replication_mcast: '225.0.0.101' <<< Configure multicast group for BUM replication for corresponding VNI
-        10102: 
-          replication_type: 'ingress-replication' <<< Configure ingress-replication over unicast
-      l3vni: <<< L3VNI configuration part
-        50901: <<< L3VNI number
-          vrf: 'green' <<< Configure the VRF that L3VNI corresponding to
 ```
 
 **UNDERLAY CONFIGURATION**
@@ -234,39 +227,15 @@ access_interfaces:
     GigabitEthernet1/0/7:
       action: init/add/delete <<< action "init" should be used only during initial interface config. Then add/delete only should be used.
       vlans:
-        - 101
-        - 102
+        - 101-102
         - 201
         - 202
+  access:
+    GigabitEthernet1/0/8:
+      action: init/add/delete <<< action "init" should be used only during initial interface config. Then add/delete only should be used.
+      vlans:
+        - 101
 ```
-# Full execution in DAG
-
-It is possible to run all playbooks by using the command (underlay configuration, overlay configuration and show commands):
-
-```
-ansible-playbook -i inventory.yml playbook_all.yml
-```
-
-If it is needed to playbook separetly, it is could be run like this:
-
-### Underlay only
-
-```
-ansible-playbook -i inventory.yml playbook_underlay.yml
-```
-
-### Overlay only
-
-```
-ansible-playbook -i inventory.yml playbook_overlay.yml
-```
-
-### Overlay only
-
-```
-ansible-playbook -i inventory.yml playbook_output.yml
-```
-
 # Partial execution in DAG
 
 Full information about the network configuration stored in group_vars/all.yml and host_vars/Leaf-xx.yml(Spine-xx.yml) files.
@@ -312,17 +281,17 @@ There are 3 option to trigger partial execution of the configuration:
 ## Variable options
 
 - **vrf_cli**           define the vrfs
-- **vlan_cli**          define the vlan list
+- **vlan_cli**          define the vlan and EVI list
 - **svi_cli**           define the svi list
-- **l2vpn_evi_cli**     define the EVI list
 - **ovrl_intf_cli**     define the Overlay interfaces list
+- **access_inft_cli**   define the trunk and access vlans to interfaces
 
 ## External variables in the command line
 
 Example
 
 ```
-ansible-playbook -i inventory.yml playbook_incremental.yml -v -e "vrf_cli=['green']"
+ansible-playbook -i inventory.yaml playbook_overlay.yml -v -e "vrf_cli=['green']"
 ```
 
 ## Variables in partial_execution.yaml file
@@ -341,12 +310,9 @@ ansible-playbook -i inventory.yml playbook_incremental.yml -v -e "vrf_cli=['gree
       - 202
       - 902
 
-    l2vpn_evi_cli:
-      - 201
-      - 202
-
     ovrl_intf_cli:
       - Loopback11
+    
 ```
 
 ## Variables in playbook directly
@@ -363,3 +329,58 @@ ansible-playbook -i inventory.yml playbook_incremental.yml -v -e "vrf_cli=['gree
     vrf_cli: 
       - green
 ```
+
+#Prechecks handled in playbook_yaml_validation.yml and precheck_yml.py module#
+
+validating the yaml file without any Errors(debug:verbose(total output))
+
+**Variables in playbook**
+
+```
+- name: run the new module
+  precheck_yaml: 
+  fileName: "group_vars/all.yaml"
+  #debug : 'verbose'( displaying all the outputs along with validation is successful or displaying the errors)
+  debug : ''
+register: result
+
+```
+
+**def yaml_error_validation(parsed_yaml,debug):**
+
+```
+- check loopback interface is present under nve
+- check the vni is duplicated under vlan
+- check the evi is duplicated under vlan
+- Found duplicate vlan_type core for vrf under vlan
+- Found duplicate svi_type core for vrf under svi
+- return key Error if key not found for vni,evi,vlan_type(access,core),svi_type(access,core),vrf(under vlans,svi)
+
+```
+**def vlan_svi_validation(parsed_yaml,debug):**
+
+```
+- vlan_id present under  vlans is complete or not
+- svi_id present under  svis is complete or not
+- replication_mcast ip for vlan replication_type : static  is present
+- replication_mcast ip for vlan replication_type : ingress should not present
+- check evi is present or not 
+- check vni is present or not
+- check if svi_type access then validate ipv4,ipv6 and mac address if present
+- check if ipv6 is present under vlan and svi for vlan_type,svi_type core
+- raise Key Error if above mentioned keys are not found
+
+```
+**def vrf_validation(parsed_yaml,debug):**
+
+```
+- check if ipv6 is present under vrf but not present under svis access or core
+- check if ipv6 is present under vrf but also present under svis access or core
+- check if ipv6 is present under svi access or core but not present under vrf
+- check if rd, ipv4 , ipv6 is present if necessary in the yaml file
+- raise a Key Error if above keys are not found
+
+```
+
+
+
