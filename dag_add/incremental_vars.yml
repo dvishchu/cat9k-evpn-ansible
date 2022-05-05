@@ -13,17 +13,3 @@ svi_cli:
   
 ovrl_intf_cli:
    - Loopback12
-
-access_inft_cli:
-
-  trunks:
-     GigabitEthernet1/0/7:
-       action: delete
-       vlans:
-         - 201
-         
-  access:
-    GigabitEthernet1/0/8:
-      action: add
-      vlans:
-        - 102
