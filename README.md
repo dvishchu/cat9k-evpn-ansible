@@ -24,6 +24,7 @@ Below you can find a topology which is used in the automation scenario.
 
 ## Inputs ##
 
+### Inventory.yml ###
 In the file **inventory.yml** all nodes of the network are described. Nodes are grouped into two groups/roles - Leafs and Spines.
 
 ```yml
@@ -42,8 +43,8 @@ all:
 <...skip...>
 
 ```
-
-Under **group/all.yaml** access section and configuration for all VTEPs are present.
+### group_vars/all.yml ###
+Under **group/all.yml** access section and configuration for all VTEPs are present.
 
 ```yml
 # Access section
@@ -70,7 +71,44 @@ vrfs:
           - '1:1 stitching'
 <...skip...>
 ```
-Each directory may has several playbook. Usually there are 4 of them:
+
+### host_vars/\<node>.yml ###
+
+In **host_vars/\<node>.yml** files node specific variables are defined.
+
+```yml
+# Hostname definition
+hostname: 'Leaf-01'
+
+# Enabling IPv4/IPv6 unicast routing, IPv4 multicast routing repsectevly
+routing:
+ ipv4_uni: 'yes'
+ ipv6_uni: 'yes'
+ ipv4_multi: 'yes'
+
+# Interface section
+interfaces:
+
+# Lo0 interface configuration
+  Loopback0:
+    name: 'Routing Loopback'
+    ip_address: '172.16.255.3'
+    subnet_mask: '255.255.255.255'
+    loopback: 'yes'
+    pim_enable: 'no'
+
+# Lo1 interface configuration
+  Loopback1:
+    name: 'NVE Loopback'
+    ip_address: '172.16.254.3'
+    subnet_mask: '255.255.255.255'
+    loopback: 'yes'
+    pim_enable: 'yes'
+
+<...skip...>
+```
+
+  Each directory may has several playbook. Usually there are 4 of them:
 
 ```
 playbook_underlay.yml:
