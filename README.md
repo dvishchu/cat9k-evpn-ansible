@@ -1,6 +1,7 @@
-# General description #
+# About #
 
-The main goal of this project is creating ansible playbooks for automating Campus EVPN Deployment.
+The main goal of this project is automation of Campus EVPN Deployment.
+Custom Jinja templates and Python modules are used for provisioning the network
 
 Each directory has scripts for specific steps for EVPN provisioning:
 * **dag_add** DAG (Distributed Anycast Gateway) provisioning
@@ -9,14 +10,15 @@ Each directory has scripts for specific steps for EVPN provisioning:
 Detailed instructions for running playbook you can find under each directory:
 * **dag_add** https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_add
 * **dag_delete** https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_delete
-*
+
 # Topology #
 
-Below you can find a topology which is used like an example.
+Below you can find a topology which is used in the automation scenario.
 
 <img width="737" alt="ansible_lab_topology" src="https://user-images.githubusercontent.com/99259970/155182099-7e5d98f4-8e4e-4b01-96a8-30b9badc5be2.png">
 
 # Playbooks description #
+<img width="897" alt="playbook" src="https://user-images.githubusercontent.com/99259970/172876037-7642b404-4f76-4e19-a0ba-009f3b8352af.png">
 
 Each directory may has several playbook. Usually there are 4 of them:
 
