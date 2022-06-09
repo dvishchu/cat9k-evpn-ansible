@@ -19,8 +19,57 @@ Below you can find a topology which is used in the automation scenario.
 <img width="737" alt="ansible_lab_topology" src="https://user-images.githubusercontent.com/99259970/155182099-7e5d98f4-8e4e-4b01-96a8-30b9badc5be2.png">
 
 # Playbooks description #
-<img width="897" alt="playbook" src="https://user-images.githubusercontent.com/99259970/172876037-7642b404-4f76-4e19-a0ba-009f3b8352af.png">
 
+<img width="903" alt="playbook_description" src="https://user-images.githubusercontent.com/99259970/172883945-3997d95b-3d6c-47f4-97ac-de0826b281c5.png">
+
+## Inputs ##
+
+In the file **inventory.yml** all nodes of the network are described. Nodes are grouped into two groups/roles - Leafs and Spines.
+
+```yml
+all:
+  children:
+    leaf:
+      hosts:
+        Leaf-01:
+          ansible_host: 10.1.1.3
+<...skip...>
+          
+    spine:
+      hosts:
+        Spine-01:
+          ansible_host: 10.1.1.1
+<...skip...>
+
+```
+
+Under **group/all.yaml** access section and configuration for all VTEPs are present.
+
+```yml
+# Access section
+ansible_connection: ansible.netcommon.network_cli
+ansible_network_os: cisco.ios.ios
+ansible_python_interpreter: "python"
+ansible_user: cisco
+ansible_ssh_pass: cisco123
+
+# EVPN section
+l2vpn_global:
+  replication_type: 'static'
+  router_id: 'Loopback1'
+  default_gw: 'yes'
+
+vrfs:
+  green:
+    ipv6_unicast: 'enable'
+    rd: '1:1'
+    afs:
+      ipv4:
+        rt_import: 
+          - '1:1'
+          - '1:1 stitching'
+<...skip...>
+```
 Each directory may has several playbook. Usually there are 4 of them:
 
 ```
