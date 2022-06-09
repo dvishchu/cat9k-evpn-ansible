@@ -9,8 +9,8 @@ Each directory has scripts for specific steps for EVPN provisioning:
 * **dag_delete** DAG selective unprovisioning
 
 Detailed instructions for running playbook you can find under each directory:
-* **dag_add** https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_add
-* **dag_delete** https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_delete
+* [**DAG provisioning playbook**](https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_add)
+* [**DAG delete playbook**](https://github.com/dvishchu/cat9k-evpn-ansible/tree/main/dag_delete)
 
 # Topology #
 
