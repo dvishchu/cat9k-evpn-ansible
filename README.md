@@ -1,3 +1,7 @@
+# REDIRECT #
+
+Project moved to https://github.com/Cat9kEVPN/cat9k-evpn-ansible. 
+
 # About #
 
 The main goal of this project is automation of Campus EVPN Deployment.
