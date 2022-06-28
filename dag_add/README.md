@@ -1,3 +1,7 @@
+# REDIRECT #
+
+Project moved to https://github.com/Cat9kEVPN/cat9k-evpn-ansible. 
+
 # General description #
 
 In this directory there are playbooks for provisioning DAG (Distributed Anycast Gateway) for Campus EVPN Fabric.
