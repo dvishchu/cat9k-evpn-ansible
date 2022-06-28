@@ -1,3 +1,7 @@
+# REDIRECT #
+
+Project moved to https://github.com/Cat9kEVPN/cat9k-evpn-ansible. 
+
 L2/L3VNI w/ Spine Distributed Anycast Gateway (DAG).
 
 Please refer to the following cco guide for the EVPN DAG fabric functionality.
